@@ -5,7 +5,7 @@
 @IDE    ：PyCharm
 @Author ：LizzieDeng
 @Date   ：2021/1/9 13:01
-@Desc   ：machineLearning noteb
+@Desc   ：machineLearning notebook
 ===================================================="""
 from matplotlib import pyplot as plt
 from sklearn.datasets.samples_generator import make_blobs
@@ -14,6 +14,8 @@ import numpy as np
 from sklearn.linear_model import LinearRegression
 from mpl_toolkits.mplot3d.art3d import Line3DCollection
 import seaborn as sns
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
 
 # common plot formatting
 def format_plot(ax, title):
@@ -157,11 +159,98 @@ def regression_data_figure_2():
 def learing_sklearn():
     iris = sns.load_dataset('iris', cache=True, data_home="./seaborn-data")
     print(iris.head())
+    sns.set()
+    sns.pairplot(iris, hue='species', size=1.5)
+    plt.show()
+    X_iris = iris.drop('species', axis=1)
+    print(X_iris.shape)
+    y_iris = iris['species']
+    print(y_iris.shape)
+    rng = np.random.RandomState(42)
+    x = 10 * rng.rand(50)
+    y = 2 * x - 1 + rng.randn(50)
+    plt.scatter(x, y)
+    plt.show()
+    # 1. choose a class of model
+    # 2. choose model hyperparameters
+    model = LinearRegression(fit_intercept=True)
+    print("model : {}s".format(model))
+    # 3. arange data into a features matrix and target vector
+    X = x[:, np.newaxis]
+    print(X.shape)
+    # 4. fit the model to your data
+    model.fit(X, y)
+    print(model.coef_)
+    print(model.intercept_)
+    # 5. predict labels for unknown data
+    xfit = np.linspace(-1, 11)
+    Xfit = xfit[:, np.newaxis]
+    print('xfit', xfit, 'Xfit', Xfit)
+    print(xfit.shape, Xfit.shape)
+    yfit = model.predict(Xfit)
+    plt.scatter(x, y)
+    plt.plot(xfit, yfit)
+    plt.show()
+
+
+def iris_classification():
+    iris = sns.load_dataset('iris', cache=True, data_home="./seaborn-data")
+    X_iris = iris.drop('species', axis=1)
+    y_iris = iris['species']
+    Xtrain, Xtest, ytrain, ytest = train_test_split(X_iris, y_iris, random_state=1)
+    from sklearn.naive_bayes import GaussianNB    # 1. choose model class
+    model = GaussianNB()                          # 2. instantiate model
+    model.fit(Xtrain, ytrain)                     # 3. fit model to data
+    y_model = model.predict(Xtest)                # 4. predict on new data
+    from sklearn.metrics import accuracy_score
+    ac_src = accuracy_score(ytest, y_model)
+    print(ac_src)
+
+
+iris = sns.load_dataset('iris', cache=True, data_home="./seaborn-data")
+X_iris = iris.drop('species', axis=1)
+y_iris = iris['species']
+
+
+def unsupervised_learning_example():
+    from sklearn.decomposition import PCA   # 1. choose the model class
+    model = PCA(n_components=2)             # 2. instantiate model
+    model.fit(X_iris)                       # 3. Fit to data. Notice y is not specified!
+    X_2D = model.transform(X_iris)          # 4. Transform the data to two dimensions
+    iris['PCA1'] = X_2D[:, 0]
+    iris['PCA2'] = X_2D[:, 1]
+    sns.lmplot("PCA1", "PCA2", hue='species', data=iris, fit_reg=False)
+    plt.show()
+
+
+def unsupervised_learning():
+    from sklearn.mixture import GaussianMixture                     # 1. choose the model class
+    model = GaussianMixture(n_components=3, covariance_type='full') # 2. Instantiate the model with hyperparmeter
+    model.fit(X_iris)         # 3. fit to data. Notice y is not specified
+    y_gmm = model.predict(X_iris) # 4. determine cluster labels
+    iris['cluster'] = y_gmm
+    sns.lmplot('PCA1', 'PCA2', data=iris, hue='species', col='cluster', fit_reg=False)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 if __name__ == '__main__':
     # plot_figure_3()
     # regression_data_figure_2()
-    learing_sklearn()
-
-
+    # learing_sklearn()
+    # iris_classification()
+    # unsupervised_learning_example()
+    unsupervised_learning()
